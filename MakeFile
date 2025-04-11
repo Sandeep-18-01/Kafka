@@ -1,0 +1,26 @@
+.PHONY: build-image up down restart clean nuke
+
+build-image:
+	docker-compose build --no-cache user-service
+
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down
+
+restart: down build-image up
+
+clean:
+	docker-compose down --volumes --remove-orphans
+	docker system prune -a -f
+	docker volume prune -f
+	docker network prune -f
+
+# ⚠️ WARNING: This will stop and remove ALL containers, images, volumes, networks
+nuke:
+	docker stop $(docker ps -aq) || true
+	docker rm -f $(docker ps -aq) || true
+	docker rmi -f $(docker images -aq) || true
+	docker volume prune -f
+	docker network prune -f
